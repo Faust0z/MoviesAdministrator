@@ -8,7 +8,6 @@ from controllers.genre_controller import get_genres
 from controllers.director_controller import get_directors
 
 
-
 @dialog("Add a movie")
 def dialog_add_movie():
     title = st.text_input("Title")

@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from models.associations import movies_have_genres
 from models.base import Base
 
+
 class Genre(Base):
     __tablename__ = "genres"
 

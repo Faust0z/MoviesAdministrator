@@ -3,6 +3,7 @@ from sqlalchemy.orm import joinedload
 from models.base import get_session
 from models.director import Director
 
+
 def add_director(new_director: Director):
     session = get_session()
     try:

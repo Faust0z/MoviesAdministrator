@@ -3,6 +3,7 @@ from sqlalchemy.orm import joinedload
 from models.base import get_session
 from models.actor import Actor
 
+
 def add_actor(new_actor: Actor):
     session = get_session()
     try:
@@ -31,8 +32,8 @@ def get_actors():
 def update_actor(updated_actor: Actor):
     session = get_session()
     try:
-        actor  = (session.get(Actor, updated_actor.actor_id)
-                  .options(joinedload(Actor.movies)))
+        actor = (session.get(Actor, updated_actor.actor_id)
+                 .options(joinedload(Actor.movies)))
 
         if actor:
             actor.name = updated_actor.name

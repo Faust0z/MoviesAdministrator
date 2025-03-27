@@ -6,5 +6,6 @@ Base = declarative_base()
 engine = create_engine(DB_URI)
 Session = sessionmaker(bind=engine)
 
+
 def get_session():
     return Session()

@@ -2,6 +2,7 @@ from sqlalchemy.orm import joinedload
 from models.base import get_session
 from models.movie import Movie
 
+
 def add_movie(new_movie: Movie):
     session = get_session()
     try:

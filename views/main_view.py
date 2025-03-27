@@ -9,12 +9,12 @@ from controllers.director_controller import get_directors
 
 
 def main():
-    st.title( "Movies Admin")
+    st.title("Movies Admin")
 
     movies_tab, actors_tab, directors_tab, genres_tab = st.tabs(["Movies", "Actors", "Directors", "Genres"])
     with movies_tab:
         display_movie_list()
-        spacer1, col1, col2, spacer2 = st.columns([3,2,2,3])
+        spacer1, col1, col2, spacer2 = st.columns([3, 2, 2, 3])
         with col1:
             if st.button("Add a movie"):
                 dialog_add_movie()
@@ -24,7 +24,7 @@ def main():
 
     with actors_tab:
         display_actors_list()
-        spacer1, col1, col2, spacer2 = st.columns([3,2,2,3])
+        spacer1, col1, col2, spacer2 = st.columns([3, 2, 2, 3])
         with col1:
             if st.button("Add an actor"):
                 dialog_add_movie()
@@ -34,7 +34,7 @@ def main():
 
     with directors_tab:
         display_directors_list()
-        spacer1, col1, col2, spacer2 = st.columns([3,2,2,3])
+        spacer1, col1, col2, spacer2 = st.columns([3, 2, 2, 3])
         with col1:
             if st.button("Add a director"):
                 pass
@@ -44,13 +44,14 @@ def main():
 
     with genres_tab:
         display_genres_list()
-        spacer1, col1, col2, spacer2 = st.columns([3,2,2,3])
+        spacer1, col1, col2, spacer2 = st.columns([3, 2, 2, 3])
         with col1:
             if st.button("Add a genre"):
                 pass
         with col2:
             if st.button("Modify a genre"):
                 pass
+
 
 def display_movie_list():
     movies_data = [
@@ -66,6 +67,7 @@ def display_movie_list():
     df = pd.DataFrame(movies_data)
     st.dataframe(df)
 
+
 def display_actors_list():
     actors_data = [
         {"ID": actor.actor_id,
@@ -78,17 +80,19 @@ def display_actors_list():
     df = pd.DataFrame(actors_data)
     st.dataframe(df)
 
+
 def display_directors_list():
     directors_data = [
         {"ID": direct.director_id,
          "Name": direct.name,
          "Birth Year": direct.birth_year,
          "Sex": direct.sex,
-         "Movies": ", ".join(movie.title for movie in direct.movies) # Todo: this doesn't works this way
+         "Movies": ", ".join(movie.title for movie in direct.movies)  # Todo: this doesn't works this way
          } for direct in get_directors()
     ]
     df = pd.DataFrame(directors_data)
     st.dataframe(df)
+
 
 def display_genres_list():
     pass

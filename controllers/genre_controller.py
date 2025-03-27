@@ -3,6 +3,7 @@ from sqlalchemy.orm import joinedload
 from models.base import get_session
 from models.genre import Genre
 
+
 def add_genre(new_genre: Genre):
     session = get_session()
     try:
@@ -29,8 +30,8 @@ def get_genres():
 def update_genre(updated_genre: Genre):
     session = get_session()
     try:
-        genre  = (session.get(Genre, updated_genre.genre_id)
-                  .options(joinedload(Genre.movies)))
+        genre = (session.get(Genre, updated_genre.genre_id)
+                 .options(joinedload(Genre.movies)))
 
         if genre:
             genre.name = updated_genre.name

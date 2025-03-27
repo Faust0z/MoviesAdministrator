@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, ForeignKey, Table
 from models.base import Base
 
-
 movies_have_actors = Table(
     "movie_actor",
     Base.metadata,
