@@ -1,8 +1,4 @@
-from models.models import engine, Director, Actor, Genre, Movie
-from sqlalchemy.orm import sessionmaker
+from views.main_view import main
 
-if __name__ == '__main__':
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    session.commit()
+if __name__ == "__main__":
+    main()
