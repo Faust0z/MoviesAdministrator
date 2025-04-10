@@ -1,11 +1,14 @@
-import streamlit as st
 import pandas as pd
+import streamlit as st
 
+from controllers.actor_controller import get_actors_dict
+from controllers.director_controller import get_directors_dict
+from controllers.genre_controller import get_genres_dict
+from controllers.movie_controller import get_movies_dict
+from views.dialogs.actors_diag import dialog_add_actor, dialog_modify_actor
+from views.dialogs.directors_diag import dialog_add_director, dialog_modify_director
+from views.dialogs.genres_diag import dialog_add_genre, dialog_delete_genre
 from views.dialogs.movies_diag import dialog_add_movie, dialog_modify_movie
-from controllers.movie_controller import get_movies
-from controllers.actor_controller import get_actors
-from controllers.genre_controller import get_genres
-from controllers.director_controller import get_directors
 
 
 def main():
@@ -13,7 +16,7 @@ def main():
 
     movies_tab, actors_tab, directors_tab, genres_tab = st.tabs(["Movies", "Actors", "Directors", "Genres"])
     with movies_tab:
-        display_movie_list()
+        display_movie_list(filter_value=st.text_input("Search a Movie"))
         spacer1, col1, col2, spacer2 = st.columns([3, 2, 2, 3])
         with col1:
             if st.button("Add a movie"):
@@ -23,76 +26,67 @@ def main():
                 dialog_modify_movie()
 
     with actors_tab:
-        display_actors_list()
+        display_actors_list(filter_value=st.text_input("Search an Actor/Actresses"))
         spacer1, col1, col2, spacer2 = st.columns([3, 2, 2, 3])
         with col1:
             if st.button("Add an actor"):
-                dialog_add_movie()
+                dialog_add_actor()
         with col2:
             if st.button("Modify an actor"):
-                dialog_modify_movie()
+                dialog_modify_actor()
 
     with directors_tab:
-        display_directors_list()
+        display_directors_list(filter_value=st.text_input("Search a Director"))
         spacer1, col1, col2, spacer2 = st.columns([3, 2, 2, 3])
         with col1:
             if st.button("Add a director"):
-                pass
+                dialog_add_director()
         with col2:
             if st.button("Modify a director"):
-                pass
+                dialog_modify_director()
 
     with genres_tab:
-        display_genres_list()
+        display_genres_list(filter_value=st.text_input("Search a Genre"))
         spacer1, col1, col2, spacer2 = st.columns([3, 2, 2, 3])
         with col1:
             if st.button("Add a genre"):
-                pass
+                dialog_add_genre()
         with col2:
             if st.button("Modify a genre"):
-                pass
+                dialog_delete_genre()
 
 
-def display_movie_list():
-    movies_data = [
-        {"ID": movie.movie_id,
-         "Title": movie.title,
-         "Release Year": movie.release_year,
-         "Runtime": movie.runtime,
-         "Director name": movie.director.name,
-         "Actors": ", ".join(actor.name for actor in movie.actors),
-         "Genres": ", ".join(genre.name for genre in movie.genres)
-         } for movie in get_movies()
-    ]
-    df = pd.DataFrame(movies_data)
-    st.dataframe(df)
+def display_movie_list(filter_value: str):
+    movies_data = get_movies_dict(filter_value)
+    if movies_data:
+        df = pd.DataFrame(movies_data)
+        st.dataframe(df)
+    else:
+        st.write("No movies found")
 
 
-def display_actors_list():
-    actors_data = [
-        {"ID": actor.actor_id,
-         "Name": actor.name,
-         "Birth Year": actor.birth_year,
-         "Sex": actor.sex,
-         "Movies": ", ".join(movie.title for movie in actor.movies)
-         } for actor in get_actors()
-    ]
-    df = pd.DataFrame(actors_data)
-    st.dataframe(df)
+def display_actors_list(filter_value: str):
+    actors_data = get_actors_dict(filter_value)
+    if actors_data:
+        df = pd.DataFrame(actors_data)
+        st.dataframe(df)
+    else:
+        st.write("No actors/actresses found")
 
 
-def display_directors_list():
-    directors_data = [
-        {"ID": direct.director_id,
-         "Name": direct.name,
-         "Birth Year": direct.birth_year,
-         "Sex": direct.sex,
-         "Movies": ", ".join(movie.title for movie in direct.movies)  # Todo: this doesn't works this way
-         } for direct in get_directors()
-    ]
-    df = pd.DataFrame(directors_data)
-    st.dataframe(df)
+def display_directors_list(filter_value: str):
+    directors_data = get_directors_dict(filter_value)
+    if directors_data:
+        df = pd.DataFrame(directors_data)
+        st.dataframe(df)
+    else:
+        st.write("No directors found")
 
 
-def display_genres_list():
-    pass
+def display_genres_list(filter_value: str):
+    genres_data = get_genres_dict(filter_value)
+    if genres_data:
+        df = pd.DataFrame(genres_data)
+        st.dataframe(df)
+    else:
+        st.write("No genres found")

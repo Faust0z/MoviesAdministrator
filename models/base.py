@@ -1,11 +1,16 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.orm import sessionmaker, DeclarativeBase
+
 from config.settings import DB_URI
 
-Base = declarative_base()
-engine = create_engine(DB_URI)
-Session = sessionmaker(bind=engine)
+engine = create_engine(DB_URI, echo=False, future=True)
+SessionFactory = sessionmaker(bind=engine, future=True)
+
+
+class Base(DeclarativeBase):
+    def __repr__(self):
+        return f"<{self.__class__.__name__}({self.__dict__})>"
 
 
 def get_session():
-    return Session()
+    return SessionFactory()

@@ -1,58 +1,84 @@
-from sqlalchemy.orm import joinedload
+from sqlalchemy import select, or_
+from sqlalchemy.orm import joinedload, Session
 
 from models.base import get_session
 from models.director import Director
+from models.movie import Movie
 
 
-def add_director(new_director: Director):
-    session = get_session()
+def add_director(new_director: Director, session: Session):
     try:
-        session.add(new_director)
-        session.commit()
+        with session.begin():
+            session.add(new_director)
     except Exception as e:
-        session.rollback()
         print(f"Error adding director: {e}")
-    finally:
-        session.close()
 
 
-def get_directors():
-    session = get_session()
+def get_directors(session: Session = None):
+    session = session if session else get_session()
     try:
         return session.query(Director).all()
     except Exception as e:
         print(f"Error fetching directors: {e}")
         return []
-    finally:
-        session.close()
+
+
+def get_directors_dict(filter_value: str = None, session: Session = None):
+    session = session if session else get_session()
+    try:
+        filters = []
+        if filter_value:
+            like_pattern = f"%{filter_value}%"
+            filters.append(Movie.title.ilike(like_pattern))
+            filters.append(Director.name.ilike(like_pattern))
+            filters.append(Director.sex.ilike(like_pattern))
+            filters.append(Director.birth_year.ilike(like_pattern))
+
+        stmt = (
+            select(Director).distinct()
+            .outerjoin(Director.movies)
+            .options(joinedload(Director.movies))
+        )
+
+        if filters:
+            stmt = stmt.where(or_(*filters))
+
+        with session.begin():
+            directors = session.execute(stmt).unique().scalars().all()
+            return [{
+                "ID": direct.director_id,
+                "Name": direct.name,
+                "Birth Year": direct.birth_year,
+                "Sex": direct.sex,
+                "Movies": ", ".join(movie.title for movie in direct.movies)
+            } for direct in directors
+            ]
+    except Exception as e:
+        print(f"Error fetching directors: {e}")
+        return []
 
 
 def update_director(updated_director: Director):
     session = get_session()
     try:
-        director = (session.get(Director, updated_director.director_id))
+        with session.begin():
+            director = (session.get(Director, updated_director.director_id))
 
-        if director:
-            director.name = updated_director.name
-            director.birth_year = updated_director.birth_year
-            director.sex = updated_director.sex
-            session.commit()
+            if director:
+                director.name = updated_director.name
+                director.birth_year = updated_director.birth_year
+                director.sex = updated_director.sex
     except Exception as e:
         print(f"Error updating director: {e}")
         return []
-    finally:
-        session.close()
 
 
 def delete_director(deleted_director: Director):
     session = get_session()
     try:
-        director = session.get(Director, deleted_director.director_id)
-        if director:
-            session.delete(director)
-            session.commit()
+        with session.begin():
+            director = session.get(Director, deleted_director.director_id)
+            if director:
+                session.delete(director)
     except Exception as e:
-        session.rollback()
         print(f"Error deleting director: {e}")
-    finally:
-        session.close()

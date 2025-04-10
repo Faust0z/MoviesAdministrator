@@ -5,4 +5,5 @@ from models.director import Director
 from models.genre import Genre
 from models.associations import movies_have_genres, movies_have_actors
 
-Base.metadata.create_all(engine) # Will create ALL tables IF they don't exist
+# Will create ALL tables IF they don't exist
+Base.metadata.create_all(engine)
