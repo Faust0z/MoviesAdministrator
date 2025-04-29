@@ -15,22 +15,23 @@ def add_genre(new_genre: Genre, session: Session):
 
 
 def get_genres(session: Session = None):
-    session = session if session else get_session()
+    session = session or get_session()
     try:
-        return session.query(Genre).all()
+        stmt = select(Genre)
+        return session.scalars(stmt).unique().all()
     except Exception as e:
         print(f"Error fetching genres: {e}")
         return []
 
 
 def get_genres_dict(filter_value: str = None, session: Session = None):
-    session = session if session else get_session()
+    session = session or get_session()
     try:
-        filters = []
-        if filter_value:
-            like_pattern = f"%{filter_value}%"
-            filters.append(Movie.title.ilike(like_pattern))
-            filters.append(Genre.name.ilike(like_pattern))
+        like_pattern = f"%{filter_value}%"
+        filters = [
+            field.ilike(like_pattern)
+            for field in [Movie.title, Genre.name]
+        ] if filter_value else []
 
         stmt = (
             select(Genre).distinct()
@@ -58,10 +59,12 @@ def update_genre(updated_genre: Genre):
     session = get_session()
     try:
         with session.begin():
-            genre = (session.query(Genre)
-                     .filter_by(genre_id=updated_genre.genre_id)
-                     .options(joinedload(Genre.movies))
-                     .first())
+            stmt = (
+                select(Genre)
+                .where(Genre.genre_id == updated_genre.genre_id)
+                .options(joinedload(Genre.movies))
+            )
+            genre = session.execute(stmt)
 
             if genre:
                 genre.name = updated_genre.name

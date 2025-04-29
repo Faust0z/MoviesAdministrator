@@ -16,26 +16,23 @@ def add_actor(new_actor: Actor, session: Session):
 
 
 def get_actors(session: Session = None):
-    session = session if session else get_session()
+    session = session or get_session()
     try:
-        return (session.query(Actor)
-                .options(joinedload(Actor.movies))
-                .all())
+        stmt = select(Actor).options(joinedload(Actor.movies))
+        return session.scalars(stmt).unique().all()
     except Exception as e:
         print(f"Error fetching actors: {e}")
         return []
 
 
 def get_actors_dict(filter_value: str = None, session: Session = None):
-    session = session if session else get_session()
+    session = session or get_session()
     try:
-        filters = []
-        if filter_value:
-            like_pattern = f"%{filter_value}%"
-            filters.append(Movie.title.ilike(like_pattern))
-            filters.append(Actor.name.ilike(like_pattern))
-            filters.append(Actor.sex.ilike(like_pattern))
-            filters.append(Actor.birth_year.ilike(like_pattern))
+        like_pattern = f"%{filter_value}%"
+        filters = [
+            field.ilike(like_pattern)
+            for field in [Movie.title, Actor.name, Actor.sex, Actor.birth_year]
+        ] if filter_value else []
 
         stmt = (
             select(Actor).distinct()
@@ -46,7 +43,7 @@ def get_actors_dict(filter_value: str = None, session: Session = None):
         if filters:
             stmt = stmt.where(or_(*filters))
 
-        with session.begin():
+        with session.begin():  # Todo: recommended to move this dictionary creation to the model
             actors = session.execute(stmt).unique().scalars().all()
             return [{
                 "ID": actor.actor_id,

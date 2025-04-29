@@ -17,30 +17,27 @@ def add_movie(new_movie: Movie, session: Session):
 
 
 def get_movies(session: Session = None):
-    session = session if session else get_session()
+    session = session or get_session()
     try:
-        return (session.query(Movie)
+        stmt = (select(Movie)
                 .options(joinedload(Movie.director))
                 .options(joinedload(Movie.actors))
                 .options(joinedload(Movie.genres))
-                .all())
+                )
+        return session.scalars(stmt).unique().all()
     except Exception as e:
         print(f"Error fetching movies: {e}")
         return []
 
 
 def get_movies_dict(filter_value: str = None, session: Session = None):
-    session = session if session else get_session()
+    session = session or get_session()
     try:
-        filters = []
-        if filter_value:
-            like_pattern = f"%{filter_value}%"
-            filters.append(Movie.title.ilike(like_pattern))
-            filters.append(Movie.runtime.ilike(like_pattern))
-            filters.append(Movie.release_year.ilike(like_pattern))
-            filters.append(Director.name.ilike(like_pattern))
-            filters.append(Actor.name.ilike(like_pattern))
-            filters.append(Genre.name.ilike(like_pattern))
+        like_pattern = f"%{filter_value}%"
+        filters = [
+            field.ilike(like_pattern)
+            for field in [Movie.title, Movie.runtime, Movie.release_year, Director.name, Actor.name, Genre.name]
+        ] if filter_value else []
 
         stmt = (
             select(Movie)
@@ -76,12 +73,12 @@ def update_movie(updated_movie: Movie):
     session = get_session()
     try:
         with session.begin():
-            movie = (session.query(Movie)
-                     .filter_by(movie_id=updated_movie.movie_id)
-                     .options(joinedload(Movie.director))
-                     .options(joinedload(Movie.actors))
-                     .options(joinedload(Movie.genres))
-                     .first())
+            stmt = (select(Movie)
+                    .options(joinedload(Movie.director))
+                    .options(joinedload(Movie.actors))
+                    .options(joinedload(Movie.genres))
+                    )
+            movie = session.execute(stmt)
 
             if movie:
                 movie.title = updated_movie.title

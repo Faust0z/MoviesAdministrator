@@ -15,24 +15,23 @@ def add_director(new_director: Director, session: Session):
 
 
 def get_directors(session: Session = None):
-    session = session if session else get_session()
+    session = session or get_session()
     try:
-        return session.query(Director).all()
+        stmt = select(Director)
+        return session.scalars(stmt).unique().all()
     except Exception as e:
         print(f"Error fetching directors: {e}")
         return []
 
 
 def get_directors_dict(filter_value: str = None, session: Session = None):
-    session = session if session else get_session()
+    session = session or get_session()
     try:
-        filters = []
-        if filter_value:
-            like_pattern = f"%{filter_value}%"
-            filters.append(Movie.title.ilike(like_pattern))
-            filters.append(Director.name.ilike(like_pattern))
-            filters.append(Director.sex.ilike(like_pattern))
-            filters.append(Director.birth_year.ilike(like_pattern))
+        like_pattern = f"%{filter_value}%"
+        filters = [
+            field.ilike(like_pattern)
+            for field in [Movie.title, Director.name, Director.sex, Director.birth_year]
+        ] if filter_value else []
 
         stmt = (
             select(Director).distinct()
@@ -62,7 +61,7 @@ def update_director(updated_director: Director):
     session = get_session()
     try:
         with session.begin():
-            director = (session.get(Director, updated_director.director_id))
+            director = session.get(Director, updated_director.director_id)
 
             if director:
                 director.name = updated_director.name
