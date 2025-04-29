@@ -44,14 +44,7 @@ def get_directors_dict(filter_value: str = None, session: Session = None):
 
         with session.begin():
             directors = session.execute(stmt).unique().scalars().all()
-            return [{
-                "ID": direct.director_id,
-                "Name": direct.name,
-                "Birth Year": direct.birth_year,
-                "Sex": direct.sex,
-                "Movies": ", ".join(movie.title for movie in direct.movies)
-            } for direct in directors
-            ]
+            return [director.to_dict() for director in directors]
     except Exception as e:
         print(f"Error fetching directors: {e}")
         return []

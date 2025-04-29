@@ -44,12 +44,7 @@ def get_genres_dict(filter_value: str = None, session: Session = None):
 
         with session.begin():
             genres = session.execute(stmt).unique().scalars().all()
-            return [{
-                "ID": genre.genre_id,
-                "Name": genre.name,
-                "Movies": ", ".join(movie.title for movie in genre.movies)
-            } for genre in genres
-            ]
+            return [genre.to_dict() for genre in genres]
     except Exception as e:
         print(f"Error fetching genres: {e}")
         return []

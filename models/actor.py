@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
+
 from models.associations import movies_have_actors
 from models.base import Base
 
@@ -25,3 +26,12 @@ class Actor(Base):
                 f" birth_year={repr(self.birth_year)},"
                 f" sex={repr(self.sex)})"
                 )
+
+    def to_dict(self) -> dict:
+        return {
+            "ID": self.actor_id,
+            "Name": self.name,
+            "Birth Year": self.birth_year,
+            "Sex": self.sex,
+            "Movies": ", ".join(movie.title for movie in self.movies)
+        }

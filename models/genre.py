@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
+
 from models.associations import movies_have_genres
 from models.base import Base
 
@@ -19,3 +20,10 @@ class Genre(Base):
         return (f"{self.__class__.__name__}"
                 f"(name={repr(self.name)})"
                 )
+
+    def to_dict(self) -> dict:
+        return {
+            "ID": self.genre_id,
+            "Name": self.name,
+            "Movies": ", ".join(movie.title for movie in self.movies)
+        }

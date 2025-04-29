@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
+
 from models.associations import movies_have_actors, movies_have_genres
 from models.base import Base
 
@@ -30,3 +31,14 @@ class Movie(Base):
                 f" runtime={repr(self.runtime)},"
                 f" director_id={repr(self.director_id)})"
                 )
+
+    def to_dict(self) -> dict:
+        return {
+            "ID": self.movie_id,
+            "Title": self.title,
+            "Release Year": self.release_year,
+            "Runtime": self.runtime,
+            "Director name": self.director.name if self.director else "",
+            "Actors": ", ".join(actor.name for actor in self.actors),
+            "Genres": ", ".join(genre.name for genre in self.genres)
+        }

@@ -43,16 +43,9 @@ def get_actors_dict(filter_value: str = None, session: Session = None):
         if filters:
             stmt = stmt.where(or_(*filters))
 
-        with session.begin():  # Todo: recommended to move this dictionary creation to the model
+        with session.begin():
             actors = session.execute(stmt).unique().scalars().all()
-            return [{
-                "ID": actor.actor_id,
-                "Name": actor.name,
-                "Birth Year": actor.birth_year,
-                "Sex": actor.sex,
-                "Movies": ", ".join(movie.title for movie in actor.movies)
-            } for actor in actors
-            ]
+            return [actor.to_dict() for actor in actors]
     except Exception as e:
         print(f"Error fetching actors: {e}")
         return []

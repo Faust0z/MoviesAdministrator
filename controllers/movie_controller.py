@@ -54,16 +54,7 @@ def get_movies_dict(filter_value: str = None, session: Session = None):
 
         with session.begin():
             movies = session.execute(stmt).unique().scalars().all()
-            return [{
-                "ID": movie.movie_id,
-                "Title": movie.title,
-                "Release Year": movie.release_year,
-                "Runtime": movie.runtime,
-                "Director name": movie.director.name if movie.director else "",
-                "Actors": ", ".join(actor.name for actor in movie.actors),
-                "Genres": ", ".join(genre.name for genre in movie.genres)
-            } for movie in movies
-            ]
+            return [movie.to_dict() for movie in movies]
     except Exception as e:
         print(f"Error fetching movies: {e}")
         return []
