@@ -10,6 +10,7 @@ def add_genre(new_genre: Genre, session: Session):
     try:
         with session.begin():
             session.add(new_genre)
+
     except Exception as e:
         print(f"Error adding genre: {e}")
 
@@ -19,6 +20,7 @@ def get_genres(session: Session = None):
     try:
         stmt = select(Genre)
         return session.scalars(stmt).unique().all()
+
     except Exception as e:
         print(f"Error fetching genres: {e}")
         return []
@@ -45,6 +47,7 @@ def get_genres_dict(filter_value: str = None, session: Session = None):
         with session.begin():
             genres = session.execute(stmt).unique().scalars().all()
             return [genre.to_dict() for genre in genres]
+
     except Exception as e:
         print(f"Error fetching genres: {e}")
         return []
@@ -54,16 +57,11 @@ def update_genre(updated_genre: Genre):
     session = get_session()
     try:
         with session.begin():
-            stmt = (
-                select(Genre)
-                .where(Genre.genre_id == updated_genre.genre_id)
-                .options(joinedload(Genre.movies))
-            )
-            genre = session.execute(stmt)
+            genre = session.get(Genre, updated_genre.genre_id)
 
             if genre:
                 genre.name = updated_genre.name
-                genre.movies = [session.merge(movie) for movie in updated_genre.movies]
+
     except Exception as e:
         print(f"Error updating genre: {e}")
         return []
@@ -76,5 +74,6 @@ def delete_genre(deleted_genre: Genre):
             genre = session.get(Genre, deleted_genre.genre_id)
             if genre:
                 session.delete(genre)
+
     except Exception as e:
         print(f"Error deleting genre: {e}")

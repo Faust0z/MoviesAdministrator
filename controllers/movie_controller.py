@@ -12,6 +12,7 @@ def add_movie(new_movie: Movie, session: Session):
     try:
         with session.begin():
             session.add(new_movie)
+
     except Exception as e:
         print(f"Error adding movie: {e}")
 
@@ -25,6 +26,7 @@ def get_movies(session: Session = None):
                 .options(joinedload(Movie.genres))
                 )
         return session.scalars(stmt).unique().all()
+
     except Exception as e:
         print(f"Error fetching movies: {e}")
         return []
@@ -64,12 +66,7 @@ def update_movie(updated_movie: Movie):
     session = get_session()
     try:
         with session.begin():
-            stmt = (select(Movie)
-                    .options(joinedload(Movie.director))
-                    .options(joinedload(Movie.actors))
-                    .options(joinedload(Movie.genres))
-                    )
-            movie = session.execute(stmt)
+            movie = session.get(Movie, updated_movie.movie_id)
 
             if movie:
                 movie.title = updated_movie.title
@@ -91,5 +88,6 @@ def delete_movie(deleted_movie: Movie):
             movie = session.get(Movie, deleted_movie.movie_id)
             if movie:
                 session.delete(movie)
+
     except Exception as e:
         print(f"Error deleting movie: {e}")

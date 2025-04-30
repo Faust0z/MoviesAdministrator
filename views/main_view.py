@@ -24,6 +24,7 @@ def main():
         with col2:
             if st.button("Modify a movie"):
                 dialog_modify_movie()
+        st.write("Warning: there must be directors loaded to add movies")
 
     with actors_tab:
         display_actors_list(filter_value=st.text_input("Search an Actor/Actresses"))

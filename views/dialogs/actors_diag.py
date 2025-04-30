@@ -27,7 +27,7 @@ def dialog_add_actor():
             # st.rerun()
 
 
-@dialog("Modify an Actor/Actresses")
+@dialog("Modify an Actor/Actress")
 def dialog_modify_actor():
     actors_values_map = {f"{actor.actor_id}: {actor.name}": actor for actor in get_actors()}
     curr_actor: Actor = actors_values_map[st.selectbox("Select an actor/actress", options=list(actors_values_map.keys()))]
